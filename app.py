@@ -5,7 +5,7 @@ from scanner_engine import run_security_scan as scan_file
 # --- Page Configuration ---
 st.set_page_config(
     page_title="SentinelCode AI | Security Hub",
-    page_icon="🛡️",
+    page_icon="https://raw.githubusercontent.com/jimmy26003/SentinelCode-AI/main/logo.png",
     layout="centered"
 )
 
@@ -30,7 +30,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- Header Section ---
-st.image("https://cdn-icons-png.flaticon.com/512/1053/1053210.png", width=80)
+st.image("https://raw.githubusercontent.com/jimmy26003/SentinelCode-AI/main/logo.png", width=150)
 st.title("🛡️ SentinelCode AI")
 st.markdown("#### Next-Generation Vulnerability Scanner")
 st.write("---")

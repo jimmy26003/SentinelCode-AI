@@ -4,17 +4,16 @@ import tempfile
 import os
 from scanner_engine import run_security_scan as scan_file
 
-# --- 1. Page Config ---
+# --- 1. Page Config (Using your logo as Tab Icon) ---
 st.set_page_config(
     page_title="SentinelCode AI | Hub",
-    page_icon="🛡️",
+    page_icon="https://raw.githubusercontent.com/jimmy26003/SentinelCode-AI/main/logo.png.jpg",
     layout="wide"
 )
 
-# --- 2. Advanced Cyber CSS (The "Magic" part) ---
+# --- 2. Advanced Cyber CSS ---
 st.markdown("""
     <style>
-    /* Main Background & Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
     
     html, body, [data-testid="stAppViewContainer"] {
@@ -23,13 +22,11 @@ st.markdown("""
         color: #e6edf3;
     }
 
-    /* Sidebar Styling */
     [data-testid="stSidebar"] {
         background-color: #161b22;
         border-right: 1px solid #30363d;
     }
 
-    /* Header & Title Gradient */
     .main-title {
         background: linear-gradient(90deg, #3fb950 0%, #2ea043 100%);
         -webkit-background-clip: text;
@@ -38,61 +35,40 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* Dashboard Cards (Metrics) */
     div[data-testid="stMetric"] {
         background: rgba(22, 27, 34, 0.8);
         border: 1px solid #30363d;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
-
-    /* Results Expander Customization */
-    .streamlit-expanderHeader {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        color: #3fb950 !important;
-    }
-
-    /* Glowing Effect for Security Score */
-    .security-score {
-        color: #3fb950;
-        text-shadow: 0 0 10px rgba(63, 185, 80, 0.5);
-        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. Sidebar Layout ---
+# --- 3. Sidebar Layout (Using your logo link) ---
 with st.sidebar:
-    # Top Logo with Green Shield
-    st.markdown("""
-        <div style='text-align: center; margin-bottom: 20px;'>
-            <img src='https://cdn-icons-png.flaticon.com/512/1053/1053210.png' width='100' style='filter: hue-rotate(90deg);'>
-        </div>
-    """, unsafe_allow_html=True)
-    
+    st.image("https://raw.githubusercontent.com/jimmy26003/SentinelCode-AI/main/logo.png.jpg", width=180)
     st.markdown("### 🛠️ Control Panel")
     st.caption("Scanner Engine: **Bandit v1.7.5**")
     st.write("---")
-    
-    st.markdown("🔍 **Quick Guide:**")
-    st.markdown("1. Upload `.py` file\n2. Wait for AI analysis\n3. Review highlighted risks")
+    st.markdown("🔍 **Quick Guide:**\n1. Upload `.py` file\n2. AI Analysis\n3. Review Risks")
     st.write("---")
     st.caption("v1.0.1 Stable Release")
 
 # --- 4. Main Header Section ---
-st.markdown("<h1 class='main-title'>SentinelCode AI | Hub</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color: #8b949e; font-size: 1.1em;'>Automated Security Auditing for Modern Python Applications</p>", unsafe_allow_html=True)
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    st.image("https://raw.githubusercontent.com/jimmy26003/SentinelCode-AI/main/logo.png.jpg", width=100)
+with col_title:
+    st.markdown("<h1 class='main-title'>SentinelCode AI</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #8b949e; font-size: 1.1em;'>Automated Security Auditing for Modern Python Applications</p>", unsafe_allow_html=True)
+
 st.write("---")
 
-# --- 5. Logic & Interaction ---
+# --- 5. File Upload & Logic ---
 uploaded_file = st.file_uploader("", type=['py'])
 
 if uploaded_file:
     with st.status("🚀 Running Deep Sandbox Analysis...", expanded=True) as status:
-        st.write("Creating temporary virtual environment...")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as tmp:
             tmp.write(uploaded_file.getvalue())
             tmp_path = tmp.name
@@ -100,11 +76,10 @@ if uploaded_file:
         results = scan_file(tmp_path)
         os.unlink(tmp_path)
         time.sleep(1)
-        status.update(label="✅ Scan Completed Successfully!", state="complete", expanded=False)
+        status.update(label="✅ Scan Completed!", state="complete", expanded=False)
 
-    # --- 6. Results Dashboard (The Cards) ---
+    # --- 6. Results Dashboard ---
     issues = results.get('results', [])
-    
     st.markdown("### 🟢 Security Insights")
     m1, m2, m3 = st.columns(3)
     
@@ -114,20 +89,14 @@ if uploaded_file:
         m3.metric("Security Score", "1000/1000")
         st.balloons()
     else:
-        m1.metric("Risk Level", "CRITICAL" if len(issues) > 3 else "MEDIUM", f"{len(issues)} Issues")
-        m2.metric("Code Integrity", f"{100 - (len(issues)*10)}%", "-10% per bug")
-        m3.metric("Security Score", f"{1000 - (len(issues)*100)}/1000")
+        m1.metric("Total Risks", len(issues), "Action Required")
+        m2.metric("Code Integrity", f"{max(0, 100 - (len(issues)*10))}%")
+        m3.metric("Status", "Critical" if len(issues) > 3 else "Warning")
 
-        st.markdown("### ⚠️ Detailed Findings")
         for error in issues:
-            severity = error.get('issue_severity')
-            color = "#ff4b4b" if severity == "HIGH" else "#ffa500"
-            
-            with st.expander(f"🔴 Issue: {error.get('test_name')} - Line {error.get('line_number')}"):
-                st.markdown(f"<span style='color:{color}'>**Severity:** {severity}</span>", unsafe_allow_html=True)
-                st.markdown(f"**Description:** {error.get('issue_text')}")
+            with st.expander(f"🔴 {error.get('test_name')} - Line {error.get('line_number')}"):
                 st.code(error.get('code'), language='python')
-                st.info(f"Confidence Level: {error.get('issue_confidence')}")
+                st.write(f"**Issue:** {error.get('issue_text')}")
 
 # --- 7. Footer ---
-st.markdown("<br><hr><center style='color: #484f58;'>Designed for Secure Development Teams | 2026</center>", unsafe_allow_html=True)
+st.markdown("<br><hr><center style='color: #484f58;'>SentinelCode AI © 2026</center>", unsafe_allow_html=True)

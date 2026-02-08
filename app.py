@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from scanner_engine import scan_file 
+from scanner_engine import run_security_scan as scan_file
 
 # --- Page Configuration ---
 st.set_page_config(
